@@ -3,11 +3,14 @@
 #include <windows.h>
 #include <cstdlib>
 #include <ctime>
+#include <limits>
 
 using namespace std;
 
 const int width = 40;    // Largura da tela do jogo
 const int height = 20;   // Altura da tela do jogo
+const int marginTop = 2; // Margem superior
+const int marginSide = 2; // Margem lateral
 int score = 0;           // Pontuação do jogador
 
 // Velocidades
@@ -21,7 +24,7 @@ int paddleX = width / 2 - 4;               // Posição inicial da raquete
 int paddleWidth = 8;                       // Largura da raquete
 
 // Blocos
-bool blocks[5][width]; // Array de blocos
+bool blocks[5][width - 2 * marginSide]; // Array de blocos
 
 // Estados do jogo
 bool gameOver = false;   // Indica se o jogo terminou
@@ -31,7 +34,7 @@ bool win = false;        // Indica se o jogador venceu
 // Função para inicializar os blocos
 void iniciarBlocos() {
     for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < width; j++) {
+        for (int j = 0; j < width - 2 * marginSide; j++) {
             blocks[i][j] = true; // Todos os blocos estão ativos no início
         }
     }
@@ -52,32 +55,39 @@ void limpaJogo() {
 
 // Função para desenhar o jogo na tela
 void desenhaJogo() {
-    //ALERTA: NÃO MODIFICAR O TRECHO DE CÓDIGO, A SEGUIR.
-    //INICIO: COMANDOS PARA QUE O CURSOR NÃO FIQUE PISCANDO NA TELA
+    // ALERTA: NÃO MODIFICAR O TRECHO DE CÓDIGO, A SEGUIR.
+    // INICIO: COMANDOS PARA QUE O CURSOR NÃO FIQUE PISCANDO NA TELA
     HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursorInfo;
     GetConsoleCursorInfo(out, &cursorInfo);
     cursorInfo.bVisible = false; // set the cursor visibility
     SetConsoleCursorInfo(out, &cursorInfo);
-    //FIM: COMANDOS PARA QUE O CURSOR NÃO FIQUE PISCANDO NA TELA
+    // FIM: COMANDOS PARA QUE O CURSOR NÃO FIQUE PISCANDO NA TELA
 
-    //INICIO: COMANDOS PARA REPOSICIONAR O CURSOR NO INÍCIO DA TELA
+    // INICIO: COMANDOS PARA REPOSICIONAR O CURSOR NO INÍCIO DA TELA
     short int CX = 0, CY = 0;
     COORD coord;
     coord.X = CX;
     coord.Y = CY;
     SetConsoleCursorPosition(out, coord); // Reposiciona o cursor
-    //FIM: COMANDOS PARA REPOSICIONAR O CURSOR NO INÍCIO DA TELA
-    //ALERTA: NÃO MODIFICAR O TRECHO DE CÓDIGO, ACIMA.
+    // FIM: COMANDOS PARA REPOSICIONAR O CURSOR NO INÍCIO DA TELA
+    // ALERTA: NÃO MODIFICAR O TRECHO DE CÓDIGO, ACIMA.
 
-    // Desenha os blocos
+    // Adiciona linhas em branco para espaçar os blocos do topo da tela
+    for (int i = 0; i < marginTop; i++) {
+        cout << endl;
+    }
+
+    // Desenha os blocos com margens laterais
     for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < width; j++) {
+        cout << string(marginSide, ' '); // Margem lateral esquerda
+        for (int j = 0; j < width - 2 * marginSide; j++) {
             if (blocks[i][j])
                 cout << "#";
             else
                 cout << " ";
         }
+        cout << string(marginSide, ' '); // Margem lateral direita
         cout << endl;
     }
 
@@ -130,10 +140,14 @@ void atualizaBola() {
     }
 
     // Colisão com blocos
-    if (ballY < 5 && blocks[ballY][ballX]) {
-        blocks[ballY][ballX] = false; // Destrói o bloco
-        ballDirY = -ballDirY;         // Inverte a direção da bola
-        score += 10;                  // Adiciona pontos
+    if (ballY < 5 && ballX >= marginSide && ballX < width - marginSide) {
+        int blockX = ballX - marginSide; // Ajuste da posição da bola com base na margem lateral
+
+        if (blocks[ballY][blockX]) {
+            blocks[ballY][blockX] = false; // Destrói o bloco
+            ballDirY = -ballDirY;          // Inverte a direção da bola
+            score += 10;                   // Adiciona pontos
+        }
     }
 
     // Verifica se a bola caiu abaixo da raquete
@@ -141,7 +155,6 @@ void atualizaBola() {
         gameOver = true;
     }
 }
-
 // Função para mover a raquete
 void atualizaRaquete() {
     if (_kbhit()) {
@@ -160,7 +173,7 @@ void atualizaRaquete() {
 // Função para exibir o menu principal
 void mostraMenu() {
     system("cls"); // Limpa a tela
-    cout << "==================== ARKANOID ====================" << endl;
+    cout << "=============== ARKANOID ===============" << endl;
     cout << "1. Iniciar Jogo" << endl;
     cout << "2. Instrucoes" << endl;
     cout << "3. Sobre" << endl;
@@ -204,18 +217,17 @@ void opcaoInvalida() {
 
 // Função principal para controlar o jogo
 void loopJogo() {
-    iniciarBlocos();
-
-    // Loop principal do jogo
+    limpaJogo();
+    system("cls"); // Limpa a tela
     while (!gameOver && !win) {
-        desenhaJogo();          // Renderiza o campo de jogo
-        atualizaBola();    // Atualiza a posição da bola
-        atualizaRaquete();  // Atualiza a posição da raquete
-
-        // Verifica condição de vitória
+        desenhaJogo();
+        atualizaBola();
+        atualizaRaquete();
+        Sleep(ballSpeed); // Controle de velocidade da bola
+        // Verifica se todos os blocos foram destruídos
         win = true;
         for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < width; j++) {
+            for (int j = 0; j < width - 2 * marginSide; j++) {
                 if (blocks[i][j]) {
                     win = false;
                     break;
@@ -223,15 +235,18 @@ void loopJogo() {
             }
             if (!win) break;
         }
-
-        Sleep(ballSpeed); // Controla a velocidade do jogo
     }
 
-    if (gameOver) {
-        cout << "Game Over! Pontuacao final: " << score << endl;
-    } else if (win) {
-        cout << "Parabens! Voce venceu o jogo com " << score << " pontos!" << endl;
+    // Exibe mensagem de fim de jogo
+    system("cls");
+    if (win) {
+        cout << "Parabens! Voce venceu o jogo!" << endl;
+    } else {
+        cout << "Game Over!" << endl;
     }
+    cout << "Sua pontuacao final foi: " << score << endl;
+    cout << "Pressione qualquer tecla para voltar ao menu." << endl;
+    _getch();
 }
 
 // Função para perguntar se o jogador quer jogar novamente
@@ -259,8 +274,13 @@ int main() {
         mostraMenu();
 
         int opcao;
-        cin >> opcao;
-
+        if (!(cin >> opcao)) {
+            // Se cin falhar, limpa o erro e descarta a entrada incorreta
+            cin.clear(); // Limpa o estado de erro
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Descarta a linha
+            opcaoInvalida();
+            continue; // Retorna ao início do loop para mostrar o menu novamente
+        }
         switch (opcao) {
             case 1:
                 limpaJogo();
