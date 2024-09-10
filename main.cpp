@@ -14,8 +14,8 @@ const int marginSide = 2; // Margem lateral
 int score = 0;           // Pontuação do jogador
 
 // Velocidades
-int ballSpeed = 50;      // Velocidade da bola (milissegundos para mover)
-int paddleSpeed = 2;     // Velocidade da raquete (incremento por movimento)
+int ballSpeed = 50;      // Velocidade da bola
+int paddleSpeed = 2;     // Velocidade da raquete 
 
 // Posições iniciais
 int ballX = width / 2, ballY = height / 2; // Posição inicial da bola
@@ -225,7 +225,6 @@ void loopJogo() {
         atualizaBola();
         atualizaRaquete();
         Sleep(ballSpeed); // Controle de velocidade da bola
-        // Verifica se todos os blocos foram destruídos
         win = true;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < width - 2 * marginSide; j++) {
