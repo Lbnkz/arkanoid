@@ -202,6 +202,7 @@ void sobre() {
     cout << "Ano: 2024" << endl;
     cout << "- Lucas e Kaue: Implementacao da logica de colisao" << endl;
     cout << "- Kaue: Desenvolvimento da interface e menu" << endl;
+    cout << "- Kaue: Desenvolvimento dos modos de dificuladade do jogo" << endl;
     cout << "- Lucas: Implementacao do sistema de pontos" << endl;
     cout << "Pressione qualquer tecla para voltar ao menu." << endl;
     _getch();
