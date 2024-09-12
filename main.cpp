@@ -119,7 +119,12 @@ void desenhaJogo() {
     cout << "Pontuação: " << score << endl;
 }
 
-// Função para mover a bola
+// Função para jogar a bolinha para uma direção aleatoria
+int direcaoAleatoria() {
+    return rand() % 2 == 0 ? 1 : -1; // Gera 1 ou -1 aleatoriamente
+}
+
+// Função para mover a bola com colisão ajustada e direção aleatória
 void atualizaBola() {
     ballX += ballDirX;
     ballY += ballDirY;
@@ -137,16 +142,25 @@ void atualizaBola() {
     // Colisão com a raquete
     if (ballY == height - 2 && ballX >= paddleX && ballX < paddleX + paddleWidth) {
         ballDirY = -ballDirY;
+
+        // Direção horizontal aleatória ao colidir com a raquete
+        ballDirX = direcaoAleatoria();
     }
 
     // Colisão com blocos
     if (ballY < 5 && ballX >= marginSide && ballX < width - marginSide) {
-        int blockX = ballX - marginSide; // Ajuste da posição da bola com base na margem lateral
+        int blockRow = ballY; // Linha do bloco com base na posição da bola
+        int blockX = ballX - marginSide; // Coluna do bloco ajustada pela margem lateral
 
-        if (blocks[ballY][blockX]) {
-            blocks[ballY][blockX] = false; // Destrói o bloco
-            ballDirY = -ballDirY;          // Inverte a direção da bola
-            score += 10;                   // Adiciona pontos
+        if (blockRow >= 0 && blockRow < 5 && blockX >= 0 && blockX < width - 2 * marginSide) {
+            if (blocks[blockRow][blockX]) {
+                blocks[blockRow][blockX] = false; // Destrói o bloco
+                ballDirY = -ballDirY;          // Inverte a direção vertical da bola
+                score += 10;                   // Adiciona pontos
+
+                // Direção horizontal aleatória ao colidir com um bloco
+                ballDirX = direcaoAleatoria();
+            }
         }
     }
 
@@ -155,6 +169,7 @@ void atualizaBola() {
         gameOver = true;
     }
 }
+
 // Função para mover a raquete
 void atualizaRaquete() {
     if (_kbhit()) {
@@ -296,6 +311,7 @@ int main() {
     srand(time(0)); // Inicializa o gerador de números aleatórios
 
     while (true) {
+        system("chcp 65001");
         mostraMenu();
 
         int opcao;
