@@ -14,8 +14,8 @@ const int marginSide = 2; // Margem lateral
 int score = 0;           // Pontuação do jogador
 
 // Velocidades
-int ballSpeed = 50;      // Velocidade da bola
-int paddleSpeed = 2;     // Velocidade da raquete 
+int ballSpeed = 0;      // Velocidade da bola
+int paddleSpeed = 2;     // Velocidade da raquete
 
 // Posições iniciais
 int ballX = width / 2, ballY = height / 2; // Posição inicial da bola
@@ -170,6 +170,14 @@ void atualizaRaquete() {
     }
 }
 
+//Função para exibir a tela de opção inválida
+void opcaoInvalida() {
+    system("cls"); // Limpa a tela
+    cout << "Opcao invalida! Tente novamente." << endl;
+    cout << "Pressione qualquer tecla para voltar ao menu." << endl;
+    _getch();
+}
+
 // Função para exibir o menu principal
 void mostraMenu() {
     system("cls"); // Limpa a tela
@@ -181,6 +189,32 @@ void mostraMenu() {
     cout << "Escolha uma opcao: ";
 }
 
+// Função para exibir o menu de dificuldade
+void menuDificuldade() {
+    system("cls"); // Limpa a tela
+    cout << "=============== ARKANOID ===============" << endl;
+    cout << "Selecione a dificuldade:" << endl;
+    cout << "1. Facil" << endl;
+    cout << "2. Medio" << endl;
+    cout << "3. Dificil" << endl;
+    cout << "Escolha uma opcao: ";
+    int opcao;
+    cin >> opcao;
+    switch (opcao) {
+        case 1:
+            ballSpeed = 100; // Velocidade da bola: 100 ms
+            break;
+        case 2:
+            ballSpeed = 50; // Velocidade da bola: 50 ms
+            break;
+        case 3:
+            ballSpeed = 25; // Velocidade da bola: 25 ms
+            break;
+        default:
+            opcaoInvalida();
+            break;
+    }
+}
 // Função para exibir instruções do jogo
 void instrucoes() {
     system("cls"); // Limpa a tela
@@ -204,14 +238,6 @@ void sobre() {
     cout << "- Kaue: Desenvolvimento da interface e menu" << endl;
     cout << "- Kaue: Desenvolvimento dos modos de dificuladade do jogo" << endl;
     cout << "- Lucas: Implementacao do sistema de pontos" << endl;
-    cout << "Pressione qualquer tecla para voltar ao menu." << endl;
-    _getch();
-}
-
-//Função para exibir a tela de opção inválida
-void opcaoInvalida() {
-    system("cls"); // Limpa a tela
-    cout << "Opcao invalida! Tente novamente." << endl;
     cout << "Pressione qualquer tecla para voltar ao menu." << endl;
     _getch();
 }
@@ -284,6 +310,7 @@ int main() {
         switch (opcao) {
             case 1:
                 limpaJogo();
+                menuDificuldade();
                 loopJogo();
                 jogueDeNovo();
                 break;
