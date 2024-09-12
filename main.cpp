@@ -271,8 +271,6 @@ void loopJogo() {
         cout << "Game Over!" << endl;
     }
     cout << "Sua pontuacao final foi: " << score << endl;
-    cout << "Pressione qualquer tecla para voltar ao menu." << endl;
-    _getch();
 }
 
 // Função para perguntar se o jogador quer jogar novamente
@@ -282,15 +280,16 @@ void jogueDeNovo() {
         cout << "Deseja jogar novamente? (s/n): ";
         cin >> choice;
         if (choice == 's' || choice == 'S') {
-            limpaJogo();
-            loopJogo();
+            limpaJogo(); // Reinicia o jogo completamente
+            menuDificuldade(); // Permite escolher a dificuldade novamente
+            loopJogo(); // Inicia o loop do jogo
         } else if (choice == 'n' || choice == 'N') {
             cout << "Obrigado por jogar!" << endl;
             return;
         } else {
             cout << "Opcao invalida! Tente novamente." << endl;
         }
-    } while (choice != 's' && choice != 'S' && choice != 'n' && choice != 'N');
+    } while (choice != 'n' && choice != 'N');
 }
 
 int main() {
