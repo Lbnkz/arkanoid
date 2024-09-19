@@ -7,15 +7,15 @@
 
 using namespace std;
 
-const int width = 40;    // Largura da tela do jogo
-const int height = 20;   // Altura da tela do jogo
-const int marginTop = 2; // Margem superior
-const int marginSide = 2; // Margem lateral
-int score = 0;           // Pontuação do jogador
+const int width = 40;
+const int height = 20;
+const int marginTop = 2;
+const int marginSide = 2;  // Margem lateral ajustada
+int score = 0;
 
 // Velocidades
-int ballSpeed = 0;      // Velocidade da bola
-int paddleSpeed = 2;     // Velocidade da raquete
+int ballSpeed = 0;
+int paddleSpeed = 2;
 
 // Posições iniciais
 int ballX = width / 2, ballY = height / 2; // Posição inicial da bola
@@ -24,25 +24,25 @@ int paddleX = width / 2 - 4;               // Posição inicial da raquete
 int paddleWidth = 8;                       // Largura da raquete
 
 // Blocos
-bool blocks[5][width - 2 * marginSide]; // Array de blocos
+const int numBlocosLargura = (width - 3 * marginSide); // Ajustado para respeitar a margem lateral
+bool blocks[5][numBlocosLargura];
 
 // Estados do jogo
 bool gameOver = false;   // Indica se o jogo terminou
 bool win = false;        // Indica se o jogador venceu
 
-
 // Função para inicializar os blocos
 void iniciarBlocos() {
     for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < width - 2 * marginSide; j++) {
-            blocks[i][j] = true; // Todos os blocos estão ativos no início
+        for (int j = 0; j < numBlocosLargura; j++) {
+            blocks[i][j] = true;
         }
     }
 }
 
 // Função para reiniciar o jogo
 void limpaJogo() {
-    score = 0; // Reseta a pontuação
+    score = 0;
     ballX = width / 2;
     ballY = height / 2;
     ballDirX = -1;
@@ -50,70 +50,71 @@ void limpaJogo() {
     paddleX = width / 2 - 4;
     gameOver = false;
     win = false;
-    iniciarBlocos(); // Reinicia os blocos
+    iniciarBlocos();
 }
 
 // Função para desenhar o jogo na tela
 void desenhaJogo() {
-    // ALERTA: NÃO MODIFICAR O TRECHO DE CÓDIGO, A SEGUIR.
-    // INICIO: COMANDOS PARA QUE O CURSOR NÃO FIQUE PISCANDO NA TELA
     HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursorInfo;
     GetConsoleCursorInfo(out, &cursorInfo);
-    cursorInfo.bVisible = false; // set the cursor visibility
+    cursorInfo.bVisible = false;
     SetConsoleCursorInfo(out, &cursorInfo);
-    // FIM: COMANDOS PARA QUE O CURSOR NÃO FIQUE PISCANDO NA TELA
 
-    // INICIO: COMANDOS PARA REPOSICIONAR O CURSOR NO INÍCIO DA TELA
-    short int CX = 0, CY = 0;
-    COORD coord;
-    coord.X = CX;
-    coord.Y = CY;
+    COORD coord = {0, 0};
     SetConsoleCursorPosition(out, coord); // Reposiciona o cursor
-    // FIM: COMANDOS PARA REPOSICIONAR O CURSOR NO INÍCIO DA TELA
-    // ALERTA: NÃO MODIFICAR O TRECHO DE CÓDIGO, ACIMA.
+
+    // Parede superior
+    cout << string(width, '#') << endl;
 
     // Adiciona linhas em branco para espaçar os blocos do topo da tela
     for (int i = 0; i < marginTop; i++) {
-        cout << endl;
+        cout << "#" << string(width - 2, ' ') << "#" << endl;
     }
 
     // Desenha os blocos com margens laterais
     for (int i = 0; i < 5; i++) {
-        cout << string(marginSide, ' '); // Margem lateral esquerda
-        for (int j = 0; j < width - 2 * marginSide; j++) {
-            if (blocks[i][j])
-                cout << "#";
-            else
-                cout << " ";
+        cout << "#";  // Parede esquerda
+        for (int j = 0; j < width - 2; j++) { // Preenche a largura entre as duas paredes
+            if (j >= marginSide && j < marginSide + numBlocosLargura) {
+                if (blocks[i][j - marginSide])
+                    cout << "X";  // Bloco
+                else
+                    cout << " ";  // Espaço vazio
+            } else {
+                cout << " ";  // Área fora dos blocos
+            }
         }
-        cout << string(marginSide, ' '); // Margem lateral direita
-        cout << endl;
+        cout << "#" << endl;  // Parede direita
     }
 
     // Desenha a parte inferior do jogo (onde a bola e a raquete estão)
     for (int i = 5; i < height - 1; i++) {
-        for (int j = 0; j < width; j++) {
-            if (i == ballY && j == ballX)
-                cout << "O"; // Bola
-            else
-                cout << " ";
+        cout << "#";  // Parede esquerda
+        for (int j = 0; j < width - 2; j++) {
+            if (i == ballY && j + 1 == ballX) // Ajustando a posição da bola
+                cout << "O"; // Desenha a bola
+            else if (j >= marginSide && j < width - marginSide - 1) {
+                cout << " ";  // Espaço vazio
+            } else {
+                cout << " ";  // Área fora dos blocos
+            }
         }
-        cout << endl;
+        cout << "#" << endl;  // Parede direita
     }
 
     // Desenha a raquete
-    for (int i = 0; i < width; i++) {
+    cout << "#";  // Parede esquerda
+    for (int i = 0; i < width - 2; i++) {
         if (i >= paddleX && i < paddleX + paddleWidth)
-            cout << "="; // Raquete
+            cout << "=";  // Raquete
         else
             cout << " ";
     }
-    cout << endl;
+    cout << "#" << endl;  // Parede direita
 
     // Desenha a borda inferior
-    for (int i = 0; i < width; i++) cout << "-";
-    cout << endl;
+    cout << string(width, '#') << endl;
 
     // Mostra a pontuação
     cout << "Pontuação: " << score << endl;
@@ -121,45 +122,40 @@ void desenhaJogo() {
 
 // Função para jogar a bolinha para uma direção aleatoria
 int direcaoAleatoria() {
-    return rand() % 2 == 0 ? 1 : -1; // Gera 1 ou -1 aleatoriamente
+    return rand() % 2 == 0 ? 1 : -1;
 }
 
-// Função para mover a bola com colisão ajustada e direção aleatória
 void atualizaBola() {
     ballX += ballDirX;
     ballY += ballDirY;
 
     // Colisão com paredes laterais
-    if (ballX <= 0 || ballX >= width - 1) {
+    if (ballX <= marginSide || ballX >= width - marginSide - 1) {
         ballDirX = -ballDirX;
     }
 
     // Colisão com o topo da tela
-    if (ballY <= 0) {
+    if (ballY <= marginTop) {
         ballDirY = -ballDirY;
     }
 
     // Colisão com a raquete
     if (ballY == height - 2 && ballX >= paddleX && ballX < paddleX + paddleWidth) {
         ballDirY = -ballDirY;
-
-        // Direção horizontal aleatória ao colidir com a raquete
-        ballDirX = direcaoAleatoria();
+        ballDirX = direcaoAleatoria(); // Direção aleatória na colisão
     }
 
     // Colisão com blocos
-    if (ballY < 5 && ballX >= marginSide && ballX < width - marginSide) {
-        int blockRow = ballY; // Linha do bloco com base na posição da bola
-        int blockX = ballX - marginSide; // Coluna do bloco ajustada pela margem lateral
+    if (ballY >= marginTop && ballY < marginTop + 5 && ballX >= marginSide && ballX < width - marginSide) {
+        int blockRow = ballY - marginTop; // Linha do bloco com base na posição da bola
+        int blockX = ballX - marginSide - 1; // Coluna do bloco ajustada pela margem lateral
 
-        if (blockRow >= 0 && blockRow < 5 && blockX >= 0 && blockX < width - 2 * marginSide) {
+        if (blockRow >= 0 && blockRow < 5 && blockX >= 0 && blockX < numBlocosLargura) {
             if (blocks[blockRow][blockX]) {
                 blocks[blockRow][blockX] = false; // Destrói o bloco
-                ballDirY = -ballDirY;          // Inverte a direção vertical da bola
-                score += 10;                   // Adiciona pontos
-
-                // Direção horizontal aleatória ao colidir com um bloco
-                ballDirX = direcaoAleatoria();
+                ballDirY = -ballDirY;            // Inverte a direção vertical da bola
+                score += 10;                     // Adiciona pontos
+                ballDirX = direcaoAleatoria();   // Define uma nova direção horizontal
             }
         }
     }
@@ -187,7 +183,7 @@ void atualizaRaquete() {
 
 //Função para exibir a tela de opção inválida
 void opcaoInvalida() {
-    system("cls"); // Limpa a tela
+    system("cls");
     cout << "Opcao invalida! Tente novamente." << endl;
     cout << "Pressione qualquer tecla para voltar ao menu." << endl;
     _getch();
@@ -195,7 +191,7 @@ void opcaoInvalida() {
 
 // Função para exibir o menu principal
 void mostraMenu() {
-    system("cls"); // Limpa a tela
+    system("cls");
     cout << "=============== ARKANOID ===============" << endl;
     cout << "1. Iniciar Jogo" << endl;
     cout << "2. Instrucoes" << endl;
@@ -206,7 +202,7 @@ void mostraMenu() {
 
 // Função para exibir o menu de dificuldade
 void menuDificuldade() {
-    system("cls"); // Limpa a tela
+    system("cls");
     cout << "=============== ARKANOID ===============" << endl;
     cout << "Selecione a dificuldade:" << endl;
     cout << "1. Facil" << endl;
@@ -232,7 +228,7 @@ void menuDificuldade() {
 }
 // Função para exibir instruções do jogo
 void instrucoes() {
-    system("cls"); // Limpa a tela
+    system("cls");
     cout << "Instrucoes:" << endl;
     cout << "1. Use as teclas esquerda e direita para mover a raquete." << endl;
     cout << "2. Destrua todos os blocos para vencer o jogo." << endl;
@@ -244,7 +240,7 @@ void instrucoes() {
 
 // Função para exibir informações sobre o jogo e a equipe
 void sobre() {
-    system("cls"); // Limpa a tela
+    system("cls");
     cout << "Sobre o jogo:" << endl;
     cout << "Desenvolvido por: Equipe Lucas e Kaue" << endl;
     cout << "Versao: 1.0" << endl;
@@ -260,12 +256,12 @@ void sobre() {
 // Função principal para controlar o jogo
 void loopJogo() {
     limpaJogo();
-    system("cls"); // Limpa a tela
+    system("cls");
     while (!gameOver && !win) {
         desenhaJogo();
         atualizaBola();
         atualizaRaquete();
-        Sleep(ballSpeed); // Controle de velocidade da bola
+        Sleep(ballSpeed); // Controle de velocidade
         win = true;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < width - 2 * marginSide; j++) {
@@ -295,9 +291,9 @@ void jogueDeNovo() {
         cout << "Deseja jogar novamente? (s/n): ";
         cin >> choice;
         if (choice == 's' || choice == 'S') {
-            limpaJogo(); // Reinicia o jogo completamente
-            menuDificuldade(); // Permite escolher a dificuldade novamente
-            loopJogo(); // Inicia o loop do jogo
+            limpaJogo();
+            menuDificuldade();
+            loopJogo();
         } else if (choice == 'n' || choice == 'N') {
             cout << "Obrigado por jogar!" << endl;
             return;
@@ -308,7 +304,7 @@ void jogueDeNovo() {
 }
 
 int main() {
-    srand(time(0)); // Inicializa o gerador de números aleatórios
+    srand(time(0));
 
     while (true) {
         system("chcp 65001");
