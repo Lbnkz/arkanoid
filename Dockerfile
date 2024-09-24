@@ -1,19 +1,19 @@
-# Usa uma imagem base do Ubuntu
 FROM ubuntu:20.04
 
-# Instala o build-essential para compilar C++
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Install necessary packages
+RUN apt-get update && \
+    apt-get install -y g++ libncurses5-dev libncursesw5-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Define o diretório de trabalho
-WORKDIR /app
+# Set the working directory
+WORKDIR /usr/src/app
 
-# Copia o código-fonte para o contêiner
+# Copy the source code
 COPY . .
 
-# Compila o código C++
-RUN g++ -o arkanoid main.cpp
+# Compile your code (replace "main.cpp" with your actual file name)
+RUN g++ -o arcanoid main.cpp -lncurses
 
-# Comando para executar o jogo
-CMD ["./arkanoid"]
+# Command to run your program
+CMD ["./arcanoid"]

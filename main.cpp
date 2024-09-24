@@ -25,7 +25,8 @@ int paddleWidth = 8;                       // Largura da raquete
 
 // Blocos
 const int numBlocosLargura = (width - 3 * marginSide); // Ajustado para respeitar a margem lateral
-bool blocks[5][numBlocosLargura];
+const int numBlocosAltura = 5;
+bool blocks[numBlocosAltura][numBlocosLargura];
 
 // Estados do jogo
 bool gameOver = false;   // Indica se o jogo terminou
@@ -33,9 +34,9 @@ bool win = false;        // Indica se o jogador venceu
 
 // Função para inicializar os blocos
 void iniciarBlocos() {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < numBlocosAltura; i++) {
         for (int j = 0; j < numBlocosLargura; j++) {
-            blocks[i][j] = true;
+            blocks[i][j] = 1;
         }
     }
 }
@@ -65,16 +66,16 @@ void desenhaJogo() {
     SetConsoleCursorPosition(out, coord); // Reposiciona o cursor
 
     // Parede superior
-    cout << string(width, '#') << endl;
+    cout << string(width, char(219)) << endl;
 
     // Adiciona linhas em branco para espaçar os blocos do topo da tela
     for (int i = 0; i < marginTop; i++) {
-        cout << "#" << string(width - 2, ' ') << "#" << endl;
+        cout << char(219) << string(width - 2, ' ') << char(219) << endl;
     }
 
     // Desenha os blocos com margens laterais
-    for (int i = 0; i < 5; i++) {
-        cout << "#";  // Parede esquerda
+    for (int i = 0; i < numBlocosAltura; i++) {
+        cout << char(219);  // Parede esquerda
         for (int j = 0; j < width - 2; j++) { // Preenche a largura entre as duas paredes
             if (j >= marginSide && j < marginSide + numBlocosLargura) {
                 if (blocks[i][j - marginSide])
@@ -85,12 +86,12 @@ void desenhaJogo() {
                 cout << " ";  // Área fora dos blocos
             }
         }
-        cout << "#" << endl;  // Parede direita
+        cout << char(219) << endl;  // Parede direita
     }
 
     // Desenha a parte inferior do jogo (onde a bola e a raquete estão)
     for (int i = 5; i < height - 1; i++) {
-        cout << "#";  // Parede esquerda
+        cout << char(219);  // Parede esquerda
         for (int j = 0; j < width - 2; j++) {
             if (i == ballY && j + 1 == ballX) // Ajustando a posição da bola
                 cout << "O"; // Desenha a bola
@@ -100,11 +101,11 @@ void desenhaJogo() {
                 cout << " ";  // Área fora dos blocos
             }
         }
-        cout << "#" << endl;  // Parede direita
+        cout << char(219) << endl;  // Parede direita
     }
 
     // Desenha a raquete
-    cout << "#";  // Parede esquerda
+    cout << char(219);  // Parede esquerda
     for (int i = 0; i < width - 2; i++) {
         if (i >= paddleX && i < paddleX + paddleWidth)
             cout << "=";  // Raquete
@@ -114,7 +115,7 @@ void desenhaJogo() {
     cout << "#" << endl;  // Parede direita
 
     // Desenha a borda inferior
-    cout << string(width, '#') << endl;
+    cout << string(width, char(219)) << endl;
 
     // Mostra a pontuação
     cout << "Pontuação: " << score << endl;
@@ -146,13 +147,13 @@ void atualizaBola() {
     }
 
     // Colisão com blocos
-    if (ballY >= marginTop && ballY < marginTop + 5 && ballX >= marginSide && ballX < width - marginSide) {
+    if (ballY >= marginTop && ballY < marginTop + numBlocosAltura && ballX >= marginSide && ballX < width - marginSide) {
         int blockRow = ballY - marginTop; // Linha do bloco com base na posição da bola
-        int blockX = ballX - marginSide - 1; // Coluna do bloco ajustada pela margem lateral
+        int blockCol = ballX - marginSide; // Coluna do bloco ajustada pela margem lateral
 
-        if (blockRow >= 0 && blockRow < 5 && blockX >= 0 && blockX < numBlocosLargura) {
-            if (blocks[blockRow][blockX]) {
-                blocks[blockRow][blockX] = false; // Destrói o bloco
+        if (blockRow >= 0 && blockRow < numBlocosAltura && blockCol >= 0 && blockCol < numBlocosLargura) {
+            if (blocks[blockRow][blockCol]) {
+                blocks[blockRow][blockCol] = 0; // Destrói o bloco
                 ballDirY = -ballDirY;            // Inverte a direção vertical da bola
                 score += 10;                     // Adiciona pontos
                 ballDirX = direcaoAleatoria();   // Define uma nova direção horizontal
@@ -308,6 +309,7 @@ int main() {
 
     while (true) {
         system("chcp 65001");
+        SetConsoleOutputCP(CP_UTF8);
         mostraMenu();
 
         int opcao;
