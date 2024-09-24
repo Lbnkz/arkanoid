@@ -1,5 +1,9 @@
 # depslib dependency file v1.0
+<<<<<<< HEAD
 1727219874 source:c:\users\lucas\documents\arcanoid\main.cpp
+=======
+1727217925 source:c:\users\lucas\documents\arcanoid\main.cpp
+>>>>>>> 842010743ba55654441feb34470b321732b7b2ff
 	<iostream>
 	<conio.h>
 	<windows.h>
